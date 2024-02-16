@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html>
+
+<h1>The <a href="http://www.fc4.me" target="_blank">Cracking the Perimeter</a> noob filter,</h1>
+
+<p>Here is an example of what is necessary to simply register for the "Cracking the Perimeter" (OSCE) requirement for the Information Security Analyst III position:
+</br>(view source to see comments)</p>
+
+        <script type="text/javascript" src="41.js"></script>
+        <script type="text/javascript" src="fc4.js"></script>
+        <script>
+                var srvstr='Monday 28th of January 2019';
+                
+                var bingo=hexMD5("\x74\x72\x79\x68\x61\x72\x64\x65\x72"+srvstr);
+                
+        function bango() {
+        
+                document.getElementById("bongo").innerHTML = bingo;
+                
+        }
+        
+        </script>
+
+        <body onload="bongo()">
+        
+                <button type="button" onclick="bango()">Click to complete step1:</button></br>
+                
+                <p id="bongo"></p>
+                
+        </body>
+        
+</html>
+
+<!--
+After reading the directions at http://www.fc4.me, I took a look at the source for the main page.  
+I wasn't about to start sifting through a whole page of code so I just looked at what could influence the page, other sources, because nothing is an island unto itself.  
+When I saw 41.js and fc4.js, I figured that I'd need to include these in whatever I was going to do to figure this out so the first thing I copied in order to get the job done was:
+
+<!DOCTYPE html>
+<html>
+<script type="text/javascript" src="41.js"></script>
+<script type="text/javascript" src="fc4.js"></script>
+
+This would give me access to the contents if I needed anything from either of them.
+I closed 41.js after reading the header because I didn't want to waste time reading over the encryption algorithm (that's the computer's job).  
+In the contents of fc4.js, I saw 'hexMD5' which I figured would lead to my solution so then I just searched the main page for "srvstr" to find out how that played into things.  
+Turns out, it's the vulnerable submit button that is vulnerability.
+I turned the submit button into an entry point using the output of "hexMD5("\x74\x72\x79\x68\x61\x72\x64\x65\x72"+srvstr)" where "srvstr" 
+(at the time) was 'Monday 28th of January 2019'.  
+Everything up until this point is contained in "step1" if you'd like to take a look at it.  
+It's just a button and the solution:
+
+Step1:
+
+<!DOCTYPE html>
+<html>
+<script type="text/javascript" src="41.js"></script>
+<script type="text/javascript" src="fc4.js"></script>
+<script>
+var srvstr='Monday 28th of January 2019';
+var bingo=hexMD5("\x74\x72\x79\x68\x61\x72\x64\x65\x72"+srvstr);
+function bango() {document.getElementById("bongo").innerHTML = bingo;}
+</script>
+<body onload="bongo()">
+<button type="button" onclick="bango()">Click to solve part one.</button></br>
+<p id="bongo"></p>
+</body>
+</html>
+
+The results from solving part one sent me to part two where the instructions were:
+
+Step2:
+
+"Not over yet! You need a Registration Code and a 128 Bytes Registration Key! 
+If you can't go further, TRY HARDER..."
+
+Given the instructions, I knew the security key would be 128b because they told me.  I then guessed that what I was looking at was a base64 encoded sequnce of shell code since I saw "x4" appear so often and had seen this before when working on some other projects. I selected the text and copied it to my clipboard.  Step 2-5 was to take the content of my clipboard containing the base64 string and put it in a file called "step2".  Then I used "cat" to output the contents of "step2" to "STDOUT" and pipe that to "base64 --decode" which yielded "step3".  After looking at the contents of step3, I  sent the registration code to another file manually and stripped down the data, yielding "step4", to run it through ndisasm to create step5.asm.  Since I'm using a $20 yardsale bought computer that I scavenged out of a milkcrate filled with computer parts running linux, I downloaded a hex editor and am currently looking through the output for 
+
+The following command will run through steps 2-5 after you copy the base64 to your clipboard: 
+
+
+cat base64 | base64 --decode > step2 && cut -c1-119 < step2 > step3 && cut -c120- < step2 > step4 && cat step4 | tr -d '<\\>' > step5 && ndisasm -b 32 step5 -o step6.asm && cut -c29- step6.asm > step7.asm && ndisasm -b 32 step7.asm -g && ld -m elf_i386 -o step8.o step7.o;echo "set logging on \n b 52 \n run > asciipassword \n x/5s $esp" finisher.txt && gdb --command=finisher.txt step8.o
+gdb shellcode3.o
+set loggin on
+b 52
+run
+x/5s $esp
+
+cat base64 | base64 --decode > step2 && cut -c1-119 < step2 > step3 && cut -c120- < step2 > step4 && ndisasm -b 32 step4 > step5.asm && cut -c29- step5.asm > step6.asm && ndisasm -b 32 step6.asm -g && ld -m elf_i386 -o step7.o step6.o;echo "set logging on \n b 52 \n run > asciipassword \n x/5s $esp" finisher.txt && gdb --command=finisher.txt step7.o
+
+echo "set logging on \n b 52 \n run > asciipassword \n x/5s $esp" finisher.txt
+gdb --command=finisher.txt
+ 
+
+cut -c29- shellcode.o > shellcode2.o
+
+ndisasm -b 32 shellcode2.o
+
+nasm -f elf shellcode2.asm -g
+
+ld -m elf_i386 -o shellcode3.o shellcode2.o
+gdb shellcode3.o
+set loggin on
+b 52
+run
+x/5s $esp
+
+
+xsel -b > step2 && cat step2 | base64 --decode > step3 && cut -c1-119 < step2 > step3 && cut -c120- < step2 > step4 && cat step4  | sed 's/.*: //g' | tr -d '<\\>, <xx>' > step5 && ndisasm -b 32 step5 | cut -c28- > step6.asm
+
+cat base64 | base64 --decode > step2 && cat step2 | sed 's/*: //g' > step3 && cat step3 | tr -d <\\> > step4 && perl -lpe's/:/@/g' > step5 && ndisasm -b 32 -o step6.asm && sed -i 's/^............................//' step6.asm > step7.asm && sed -i '1 i\_start\: step7.asm > step8.asm && sed -i '1 i\global \_start' && sed -i "/lodsb/i hey_look_I_found_what_I_was_looking_for_right_here:" step8.asm > step9.asm && nasm -f elf step9.asm && ld -m elf_i386 -s -o step10 step9.o 
+
+step1:
+
+<!DOCTYPE html>
+<html>
+<script type="text/javascript" src="41.js"></script>
+<script type="text/javascript" src="fc4.js"></script>
+<script>
+var srvstr='Monday 28th of January 2019';
+var bingo=hexMD5("\x74\x72\x79\x68\x61\x72\x64\x65\x72"+srvstr);
+function bango() {document.getElementById("bongo").innerHTML = bingo;}
+</script>
+<body onload="bongo()">
+<button type="button" onclick="bango()">Click to solve part one.</button></br>
+<p id="bongo"></p>
+</body>
+</html>
+
+step2:
+
+RW1haWw6IHRheWxvcndpbGtlcnNvbm9saXZlckBnbWFpbC5jb20gLCBSZWdpc3RyYXRpb24gQ29kZTogNTIwODYgfCBOb3cgZGVjb2RlIHlvdXIgQ1RQIFNlY3JldCBLZXkgYW5kIHlvdSBhc
+mUgZG9uZSEgOiBceDMxXHhDMFx4NTBceDY4XHgyNVx4MjBceDczXHg3Mlx4NjhceDcyXHgyN1x4NzdceDIwXHg2OFx4NzVceDI1XHg3MFx4NzRceDY4XHg3NVx4NzNceDc5XHg3MFx4NjhceD
+cyXHg3MFx4MjJceDc1XHg2OFx4NzBceDI0XHgyMlx4NzNceDY4XHg3M1x4NzRceDc0XHg3N1x4NjhceDc5XHg3NFx4NzdceDc3XHg2OFx4MjVceDczXHg3Nlx4NzJceDY4XHgyM1x4NzhceDc
+1XHg3NFx4NjhceDc1XHgyNFx4MjVceDIwXHg2OFx4MjdceDc3XHg3N1x4NzFceDY4XHgyN1x4NzRceDc5XHg3OVx4NjhceDc3XHg3OFx4MjVceDc3XHg2OFx4MjNceDIyXHg3MFx4NzlceDY4
+XHgyNFx4MjdceDc3XHg3OVx4NjhceDcwXHgyMlx4NzJceDI1XHg2OFx4MjVceDc1XHgyMFx4NzVceDY4XHg3NFx4NzVceDIwXHg3NFx4NjhceDc3XHgyNVx4NzBceDc3XHg2OFx4MjdceDc5X
+Hg3MVx4NzFceDY4XHgyMlx4MjJceDcwXHgyMFx4NjhceDc3XHg3MFx4MjNceDcyXHg2OFx4NzZceDczXHgyM1x4MjBceDY4XHg3MVx4NzFceDc4XHg3NFx4NjhceDcyXHgyNVx4NzlceDczXH
+g2OFx4MjNceDc0XHgyMlx4NzdceDY4XHgyMFx4NzRceDI3XHgyNFx4NjhceDc1XHg3NFx4NzlceDcyXHg2OFx4MjRceDc3XHg3Nlx4NzhceDY4XHgyMlx4NzFceDc1XHg3N1x4NjhceDc5XHg
+3Nlx4NzVceDc1XHg1NFx4NUVceDhCXHhGRVx4OEJceEQ3XHhGQ1x4QjlceDgwXHgwMFx4MDBceDAwXHhCQlx4NDFceDAwXHgwMFx4MDBceDMxXHhDMFx4NTBceEFDXHgzM1x4QzNceEFBXHhF
+Mlx4RkFceDU0XHg1RVx4Q0M=
+
+step3:
+
+Email: taylorwilkersonoliver@gmail.com , Registration Code: 52086 | Now decode your CTP Secret Key and you are done! : \x31\xC0\x50\x68\x25\x20\x73\x72\x68\x72\x27\x77\x20\x68\x75\x25\x70\x74\x68\x75\x73\x79\x70\x68\x72\x70\x22\x75\x68\x70\x24\x22\x73\x68\x73\x74\x74\x77\x68\x79\x74\x77\x77\x68\x25\x73\x76\x72\x68\x23\x78\x75\x74\x68\x75\x24\x25\x20\x68\x27\x77\x77\x71\x68\x27\x74\x79\x79\x68\x77\x78\x25\x77\x68\x23\x22\x70\x79\x68\x24\x27\x77\x79\x68\x70\x22\x72\x25\x68\x25\x75\x20\x75\x68\x74\x75\x20\x74\x68\x77\x25\x70\x77\x68\x27\x79\x71\x71\x68\x22\x22\x70\x20\x68\x77\x70\x23\x72\x68\x76\x73\x23\x20\x68\x71\x71\x78\x74\x68\x72\x25\x79\x73\x68\x23\x74\x22\x77\x68\x20\x74\x27\x24\x68\x75\x74\x79\x72\x68\x24\x77\x76\x78\x68\x22\x71\x75\x77\x68\x79\x76\x75\x75\x54\x5E\x8B\xFE\x8B\xD7\xFC\xB9\x80\x00\x00\x00\xBB\x41\x00\x00\x00\x31\xC0\x50\xAC\x33\xC3\xAA\xE2\xFA\x54\x5E\xCC
+
+step4:
+
+Email: taylorwilkersonoliver@gmail.com , Registration Code: 52086 | Now decode your CTP Secret Key and you are done! : 
+
+\x31\xC0\x50\x68\x25\x20\x73\x72\x68\x72\x27\x77\x20\x68\x75\x25\x70\x74\x68\x75\x73\x79\x70\x68\x72\x70\x22\x75\x68\x70\x24\x22\x73\x68\x73\x74\x74\x77\x68\x79\x74\x77\x77\x68\x25\x73\x76\x72\x68\x23\x78\x75\x74\x68\x75\x24\x25\x20\x68\x27\x77\x77\x71\x68\x27\x74\x79\x79\x68\x77\x78\x25\x77\x68\x23\x22\x70\x79\x68\x24\x27\x77\x79\x68\x70\x22\x72\x25\x68\x25\x75\x20\x75\x68\x74\x75\x20\x74\x68\x77\x25\x70\x77\x68\x27\x79\x71\x71\x68\x22\x22\x70\x20\x68\x77\x70\x23\x72\x68\x76\x73\x23\x20\x68\x71\x71\x78\x74\x68\x72\x25\x79\x73\x68\x23\x74\x22\x77\x68\x20\x74\x27\x24\x68\x75\x74\x79\x72\x68\x24\x77\x76\x78\x68\x22\x71\x75\x77\x68\x79\x76\x75\x75\x54\x5E\x8B\xFE\x8B\xD7\xFC\xB9\x80\x00\x00\x00\xBB\x41\x00\x00\x00\x31\xC0\x50\xAC\x33\xC3\xAA\xE2\xFA\x54\x5E\xCC
+
+
+
+00000000  31C0              xor eax,eax
+00000002  50                push eax
+00000003  6825207372        push dword 0x72732025
+00000008  6872277720        push dword 0x20772772
+0000000D  6875257074        push dword 0x74702575
+00000012  6875737970        push dword 0x70797375
+00000017  6872702275        push dword 0x75227072
+0000001C  6870242273        push dword 0x73222470
+00000021  6873747477        push dword 0x77747473
+00000026  6879747777        push dword 0x77777479
+0000002B  6825737672        push dword 0x72767325
+00000030  6823787574        push dword 0x74757823
+00000035  6875242520        push dword 0x20252475
+0000003A  6827777771        push dword 0x71777727
+0000003F  6827747979        push dword 0x79797427
+00000044  6877782577        push dword 0x77257877
+00000049  6823227079        push dword 0x79702223
+0000004E  6824277779        push dword 0x79772724
+00000053  6870227225        push dword 0x25722270
+00000058  6825752075        push dword 0x75207525
+0000005D  6874752074        push dword 0x74207574
+00000062  6877257077        push dword 0x77702577
+00000067  6827797171        push dword 0x71717927
+0000006C  6822227020        push dword 0x20702222
+00000071  6877702372        push dword 0x72237077
+00000076  6876732320        push dword 0x20237376
+0000007B  6871717874        push dword 0x74787171
+00000080  6872257973        push dword 0x73792572
+00000085  6823742277        push dword 0x77227423
+0000008A  6820742724        push dword 0x24277420
+0000008F  6875747972        push dword 0x72797475
+00000094  6824777678        push dword 0x78767724
+00000099  6822717577        push dword 0x77757122
+0000009E  6879767575        push dword 0x75757679
+000000A3  54                push esp
+000000A4  5E                pop esi
+000000A5  8BFE              mov edi,esi
+000000A7  8BD7              mov edx,edi
+000000A9  FC                cld
+000000AA  B980000000        mov ecx,0x80
+000000AF  BB41000000        mov ebx,0x41
+000000B4  31C0              xor eax,eax
+000000B6  50                push eax
+000000B7  AC                lodsb
+000000B8  33C3              xor eax,ebx
+000000BA  AA                stosb
+000000BB  E2FA              loop 0xb7
+000000BD  54                push esp
+000000BE  5E                pop esi
+000000BF  CC                int3
+
+step6.asm
+
+xor eax,eax
+push eax
+push dword 0x72732025
+push dword 0x20772772
+push dword 0x74702575
+push dword 0x70797375
+push dword 0x75227072
+push dword 0x73222470
+push dword 0x77747473
+push dword 0x77777479
+push dword 0x72767325
+push dword 0x74757823
+push dword 0x20252475
+push dword 0x71777727
+push dword 0x79797427
+push dword 0x77257877
+push dword 0x79702223
+push dword 0x79772724
+push dword 0x25722270
+push dword 0x75207525
+push dword 0x74207574
+push dword 0x77702577
+push dword 0x71717927
+push dword 0x20702222
+push dword 0x72237077
+push dword 0x20237376
+push dword 0x74787171
+push dword 0x73792572
+push dword 0x77227423
+push dword 0x24277420
+push dword 0x72797475
+push dword 0x78767724
+push dword 0x77757122
+push dword 0x75757679
+push esp
+pop esi
+mov edi,esi
+mov edx,edi
+cld
+mov ecx,0x80
+mov ebx,0x41
+xor eax,eax
+push eax
+lodsb
+xor eax,ebx
+stosb
+loop 0xb7
+push esp
+pop esi
+int3
+
+
+8744c046e6794583a5feb5c63d82009572ba61b3cc1af8006d1654a5d4a41c3def68bc1869d6f588f6604edab945d273856625561ec231c442814d153f6ada23
+-->
